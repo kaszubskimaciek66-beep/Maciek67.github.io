@@ -104,19 +104,18 @@ eye.addEventListener("click", () => {
   }
 });
 
-// Czekamy, aż cała strona się załaduje
-document.addEventListener("DOMContentLoaded", () => {
+console.log("Skrypt id.js wczytany poprawnie z folderu assets!");
 
-    // Szukamy przycisku "Zaloguj się"
-    // W Twoim kodzie CSS i HTML ma on prawdopodobnie klasę .error_button
+document.addEventListener("DOMContentLoaded", () => {
+    // W Twoim qr.css przycisk logowania to .error_button
     const loginButton = document.querySelector(".error_button");
 
     if (loginButton) {
         loginButton.addEventListener("click", () => {
-            // Przekierowanie do strony głównej po kliknięciu
+            console.log("Przycisk kliknięty! Przenoszę do home.html...");
             window.location.href = "home.html";
         });
     } else {
-        console.error("Nie znaleziono przycisku z klasą .error_button");
+        console.error("BŁĄD: Nie znaleziono elementu .error_button. Sprawdź klasy w id.html");
     }
 });
