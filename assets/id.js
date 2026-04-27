@@ -104,3 +104,19 @@ eye.addEventListener("click", () => {
   }
 });
 
+// Czekamy, aż cała strona się załaduje
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Szukamy przycisku "Zaloguj się"
+    // W Twoim kodzie CSS i HTML ma on prawdopodobnie klasę .error_button
+    const loginButton = document.querySelector(".error_button");
+
+    if (loginButton) {
+        loginButton.addEventListener("click", () => {
+            // Przekierowanie do strony głównej po kliknięciu
+            window.location.href = "home.html";
+        });
+    } else {
+        console.error("Nie znaleziono przycisku z klasą .error_button");
+    }
+});
