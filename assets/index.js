@@ -89,10 +89,10 @@ imageInput.addEventListener('change', (event) => {
 
 document.querySelector(".go").addEventListener("click", () => {
   var empty = [];
-
   var params = new URLSearchParams();
 
   params.set("sex", sex);
+  
   if (!upload.hasAttribute("selected")) {
     empty.push(upload);
     upload.classList.add("error_shown");
@@ -104,13 +104,41 @@ document.querySelector(".go").addEventListener("click", () => {
   const month = document.getElementById("month");
   const year = document.getElementById("year");
 
+  // POPRAWKA: Definicja zmiennej dateEmpty, żeby kod się nie wywalał
+  let dateEmpty = false; 
+
   [day, month, year].forEach((input) => {
-    if (isEmpty(input.value)) {
+    // Sprawdzamy czy input istnieje (na wypadek braku ID w HTML)
+    if (input && isEmpty(input.value)) {
       dateEmpty = true;
+    } else if (input) {
+      params.set(input.id, input.value);
+    }
+  });
+
+  if (dateEmpty) {
+    var dateElement = document.querySelector(".date");
+    empty.push(dateElement);
+    dateElement.classList.add("error_shown");
+  }
+
+  document.querySelectorAll(".input_holder").forEach((element) => {
+    var input = element.querySelector(".input");
+    if (isEmpty(input.value)) {
+      empty.push(element);
+      element.classList.add("error_shown");
     } else {
       params.set(input.id, input.value);
     }
   });
+
+  if (empty.length != 0) {
+    empty[0].scrollIntoView({ behavior: 'smooth' });
+  } else {
+    // Wywołanie funkcji z poprawnymi parametrami
+    forwardToId(params);
+  }
+});
 
   document.querySelectorAll(".input_holder").forEach((element) => {
     var input = element.querySelector(".input");
@@ -136,7 +164,7 @@ function isEmpty(value) {
 }
 
 function forwardToId(params) {
-    // Upewnij się, że plik nazywa się dokładnie id.html (małe litery!)
+    // Usunąłem "/" z początku adresu i dodałem .toString()
     window.location.href = "id.html?" + params.toString();
 }
 
