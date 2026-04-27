@@ -1,3 +1,36 @@
+// 1. Pobieramy dane z pamięci (LocalStorage)
+const name = localStorage.getItem('name');
+const surname = localStorage.getItem('surname');
+const photo = localStorage.getItem('image');
+const pesel = localStorage.getItem('pesel');
+
+// 2. Wstawiamy je do odpowiednich elementów na stronie id.html
+// Musisz się upewnić, że w pliku id.html masz elementy z takimi klasami lub ID
+
+if (name && surname) {
+    // Przykładowo szukamy elementu, gdzie ma być imię i nazwisko
+    const nameDisplay = document.querySelector(".name_text"); // zmień klasę na taką, jaką masz w HTML
+    if (nameDisplay) {
+        nameDisplay.innerHTML = name + " " + surname;
+    }
+}
+
+if (photo) {
+    const userPhoto = document.querySelector(".user_photo"); // Twoja klasa zdjęcia w id.html
+    if (userPhoto) {
+        userPhoto.src = photo;
+    }
+}
+
+if (pesel) {
+    const peselDisplay = document.querySelector(".pesel_number");
+    if (peselDisplay) {
+        peselDisplay.innerHTML = pesel;
+    }
+}
+
+// Reszta Twojego kodu id.js (np. obsługa logowania, animacje itp.)
+
 var params = new URLSearchParams(window.location.search);
 
 document.querySelector(".login").addEventListener("click", () => {
