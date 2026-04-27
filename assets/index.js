@@ -87,79 +87,94 @@ imageInput.addEventListener('change', (event) => {
     });
 });
 
+// Ta sekcja obsługuje kliknięcie przycisku "Dalej" na samym dole formularza
 document.querySelector(".go").addEventListener("click", () => {
-  var empty = [];
-  var params = new URLSearchParams();
+    let empty = [];
+    let dataToSave = {};
 
-  params.set("sex", sex);
-  if (!upload.hasAttribute("selected")) {
-    empty.push(upload);
-    upload.classList.add("error_shown");
-  } else {
-    params.set("image", upload.getAttribute("selected"));
-  }
+    // 1. Zapisujemy płeć (zmiennej 'sex' używasz już wcześniej w kodzie)
+    dataToSave.sex = sex;
 
-  const day = document.getElementById("day");
-  const month = document.getElementById("month");
-  const year = document.getElementById("year");
-
-  // --- TUTAJ BYŁ BŁĄD - DODAJEMY TĘ LINIĘ ---
-  let dateEmpty = false; 
-  // ------------------------------------------
-
-  // Sprawdzamy czy inputy istnieją, żeby nie wywaliło błędu
-  if (day && month && year) {
-    [day, month, year].forEach((input) => {
-      if (isEmpty(input.value)) {
-        dateEmpty = true;
-      } else {
-        params.set(input.id, input.value);
-      }
-    });
-  }
-
-  if (dateEmpty) {
-      const dateElement = document.querySelector(".date");
-      if (dateElement) {
-          dateElement.classList.add("error_shown");
-          empty.push(dateElement);
-      }
-  }
-
-  document.querySelectorAll(".input_holder").forEach((element) => {
-    var input = element.querySelector(".input");
-    if (input && isEmpty(input.value)) {
-      empty.push(element);
-      element.classList.add("error_shown");
-    } else if (input) {
-      params.set(input.id, input.value);
+    // 2. Sprawdzamy czy zdjęcie jest wgrane
+    if (!upload.hasAttribute("selected")) {
+        empty.push(upload);
+        upload.classList.add("error_shown");
+    } else {
+        dataToSave.image = upload.getAttribute("selected");
     }
-  });
 
-  if (empty.length != 0) {
-    empty[0].scrollIntoView({ behavior: 'smooth' });
-  } else {
-    forwardToId(params);
-  }
+    // 3. Pobieramy datę urodzenia z pól tekstowych
+    const day = document.getElementById("day");
+    const month = document.getElementById("month");
+    const year = document.getElementById("year");
+
+    let dateEmpty = false;
+    if (day && month && year) {
+        if (isEmpty(day.value) || isEmpty(month.value) || isEmpty(year.value)) {
+            dateEmpty = true;
+        } else {
+            dataToSave.day = day.value;
+            dataToSave.month = month.value;
+            dataToSave.year = year.value;
+        }
+    }
+
+    if (dateEmpty) {
+        const dateElement = document.querySelector(".date");
+        if (dateElement) {
+            dateElement.classList.add("error_shown");
+            empty.push(dateElement);
+        }
+    }
+
+    // 4. Pobieramy pozostałe dane (imię, nazwisko, PESEL itp.)
+    document.querySelectorAll(".input_holder").forEach((element) => {
+        let input = element.querySelector(".input");
+        if (input && isEmpty(input.value)) {
+            empty.push(element);
+            element.classList.add("error_shown");
+        } else if (input) {
+            // Tutaj id inputa (np. "name") staje się kluczem w pamięci
+            dataToSave[input.id] = input.value;
+        }
+    });
+
+    // 5. Jeśli są puste pola - przewiń do pierwszego błędu. Jeśli nie - leć dalej!
+    if (empty.length != 0) {
+        empty[0].scrollIntoView({ behavior: 'smooth' });
+    } else {
+        saveAndForward(dataToSave);
+    }
 });
 
+// Funkcja pomocnicza do sprawdzania czy pole jest puste
 function isEmpty(value) {
-  let pattern = /^\s*$/;
-  return pattern.test(value);
+    let pattern = /^\s*$/;
+    return pattern.test(value);
 }
 
-function forwardToId(params){
+// KLUCZOWA FUNKCJA: Zapisuje dane w pamięci przeglądarki i przenosi do id.html
+function saveAndForward(data) {
+    // Czyścimy starą pamięć, żeby dane się nie mieszały
+    localStorage.clear();
 
-    location.href = "id.html?" + params.toString();
+    // Zapisujemy każdą daną z obiektu do localStorage
+    for (const key in data) {
+        localStorage.setItem(key, data[key]);
+    }
 
+    // Przekierowanie na stronę logowania/dowodu
+    location.href = "id.html";
 }
 
-
+// Obsługa rozwijania instrukcji na dole strony (Guide)
 var guide = document.querySelector(".guide_holder");
-guide.addEventListener("click", () => {
-  if (guide.classList.contains("unfolded")) {
-    guide.classList.remove("unfolded");
-  } else {
-    guide.classList.add("unfolded");
-  }
-});
+if (guide) {
+    guide.addEventListener("click", () => {
+        if (guide.classList.contains("unfolded")) {
+            guide.classList.remove("unfolded");
+        } else {
+            guide.classList.add("unfolded");
+        }
+    });
+}
