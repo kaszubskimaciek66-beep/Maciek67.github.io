@@ -22,17 +22,15 @@ function setClock() {
 }
 
 function loadCardData() {
-    // 1. Pobieranie danych podstawowych
+    // 1. Pobieranie danych z LocalStorage
     const data = {
         name: localStorage.getItem('name') || "JAN",
         surname: localStorage.getItem('surname') || "KOWALSKI",
-        pesel: localStorage.getItem('pesel') || "00000000000",
         image: localStorage.getItem('image'),
         day: localStorage.getItem('day') || "01",
         month: localStorage.getItem('month') || "01",
         year: localStorage.getItem('year') || "1995",
         sex: localStorage.getItem('sex') || "m",
-        // Dodatkowe dane z index.html
         familyName: localStorage.getItem('familyName') || "---",
         fathersFamilyName: localStorage.getItem('fathersFamilyName') || "---",
         mothersFamilyName: localStorage.getItem('mothersFamilyName') || "---",
@@ -43,18 +41,36 @@ function loadCardData() {
         city: localStorage.getItem('city') || ""
     };
 
-    // 2. Wstrzykiwanie danych do HTML
+    // --- GENERATOR PESEL (Twoja stara logika) ---
+    let pDay = parseInt(data.day);
+    let pMonth = parseInt(data.month);
+    let pYear = parseInt(data.year);
+    
+    // Jeśli urodzony po 2000 roku, dodajemy 20 do miesiąca (format PESEL)
+    let peselMonth = (pYear >= 2000) ? (20 + pMonth) : pMonth;
+
+    let sDay = pDay < 10 ? "0" + pDay : pDay.toString();
+    let sMonth = peselMonth < 10 ? "0" + peselMonth : peselMonth.toString();
+    let sYear = pYear.toString().substring(2);
+    
+    // Końcówka zależna od płci (z Twojego starego kodu)
+    let later = (data.sex === "m") ? "0295" : "0382";
+    let generatedPesel = sYear + sMonth + sDay + later + "7";
+    
+    // Wstawianie PESEL
+    document.getElementById("pesel").innerHTML = generatedPesel;
+
+    // 2. Wstrzykiwanie reszty danych do HTML
     document.getElementById("name").innerHTML = data.name.toUpperCase();
     document.getElementById("surname").innerHTML = data.surname.toUpperCase();
-    document.getElementById("pesel").innerHTML = data.pesel;
     document.getElementById("nationality").innerHTML = "POLSKIE";
     document.getElementById("birthday").innerHTML = `${data.day}.${data.month}.${data.year}`;
     
-    // Imiona rodziców (zgodnie z prośbą)
+    // Imiona rodziców na sztywno
     document.getElementById("fathersName").innerHTML = "ŁUKASZ";
     document.getElementById("mothersName").innerHTML = "MAŁGORZATA";
 
-    // Dane rodowe i miejsce urodzenia (Zdjęcie 3)
+    // Dane dodatkowe
     document.getElementById("familyName").innerHTML = data.familyName.toUpperCase();
     document.getElementById("sex").innerHTML = (data.sex === "m") ? "Mężczyzna" : "Kobieta";
     document.getElementById("fathersFamilyName").innerHTML = data.fathersFamilyName.toUpperCase();
@@ -63,12 +79,12 @@ function loadCardData() {
     document.getElementById("countryOfBirth").innerHTML = data.countryOfBirth.toUpperCase();
     document.getElementById("adress").innerHTML = `ul. ${data.adress1}<br>${data.adress2} ${data.city}`.toUpperCase();
 
-    // 3. Zdjęcie
+    // 3. Zdjęcie profilowe
     if (data.image) {
         document.querySelector(".id_own_image").style.backgroundImage = `url(${data.image})`;
     }
 
-    // 4. Losowanie Serii i Numeru (jeśli nie ma w pamięci)
+    // 4. Seria i Numer (jeśli nie ma w pamięci)
     if (!localStorage.getItem("seriesAndNumber")) {
         localStorage.setItem("seriesAndNumber", generateDocumentNumber());
     }
@@ -78,7 +94,7 @@ function loadCardData() {
     document.getElementById("givenDate").innerHTML = `24.12.2024`;
     document.getElementById("expiryDate").innerHTML = `24.12.2034`;
     
-    // 6. Data zameldowania (losowa raz na zawsze)
+    // 6. Data zameldowania
     if (!localStorage.getItem("homeDate")) {
         localStorage.setItem("homeDate", "12.05.2018");
     }
@@ -89,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadCardData();
     setClock();
 
-    // Rozwijanie "Twoje dodatkowe dane"
     const unfold = document.querySelector(".info_holder");
     if (unfold) {
         unfold.addEventListener('click', () => {
@@ -97,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Aktualizacja
     const updateBtn = document.querySelector(".update");
     if (updateBtn) {
         updateBtn.addEventListener('click', () => {
