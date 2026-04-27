@@ -40,37 +40,51 @@ upload.addEventListener("click", () => {
   upload.classList.remove("error_shown");
 });
 
-imageInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+imageInput.addEventListener('change', (event) => {
+    upload.classList.remove("upload_loaded");
+    upload.classList.add("upload_loading");
+    upload.removeAttribute("selected");
 
-  // Pokazujemy ładowanie na chwilę, żeby wyglądało profesjonalnie
-  upload.classList.add("upload_loading");
-  upload.classList.remove("upload_loaded");
+    var file = imageInput.files[0];
+    if (!file) {
+        upload.classList.remove("upload_loading");
+        return;
+    }
 
-  const reader = new FileReader();
+    var data = new FormData();
+    data.append("image", file);
 
-  reader.onload = (e) => {
-    const base64Image = e.target.result;
-
-    // "Zapisujemy" zdjęcie w atrybucie selected (tak jak wcześniej URL z Imgur)
-    upload.setAttribute("selected", base64Image);
-    
-    // Ustawiamy podgląd
-    upload.querySelector(".upload_uploaded").src = base64Image;
-
-    // Ukrywamy ładowanie, pokazujemy zdjęcie
-    upload.classList.remove("upload_loading");
-    upload.classList.add("upload_loaded");
-  };
-
-  reader.onerror = () => {
-    alert("Błąd podczas czytania pliku.");
-    upload.classList.remove("upload_loading");
-  };
-
-  // Ta linia zamienia plik na tekst (Base64)
-  reader.readAsDataURL(file);
+    // USUNIĘTO "/" Z KOŃCA URL
+    fetch("https://api.imgur.com/3/image", { 
+        method: 'POST',
+        headers: {
+            // UŻYTO DZIAŁAJĄCEGO CLIENT-ID
+            'Authorization': 'Client-ID c27369172c61327' 
+        },
+        body: data
+    })
+    .then(result => {
+        if (!result.ok) throw new Error('Błąd serwera Imgur');
+        return result.json();
+    })
+    .then(response => {
+        if (response.success) {
+            var url = response.data.link;
+            upload.classList.remove("error_shown");
+            upload.setAttribute("selected", url);
+            upload.classList.add("upload_loaded");
+            upload.classList.remove("upload_loading");
+            upload.querySelector(".upload_uploaded").src = url;
+        } else {
+            console.error("Imgur error:", response);
+            upload.classList.remove("upload_loading");
+        }
+    })
+    .catch(err => {
+        console.error("Fetch error:", err);
+        alert("Nie udało się wysłać zdjęcia. Sprawdź konsolę (F12).");
+        upload.classList.remove("upload_loading");
+    });
 });
 
 document.querySelector(".go").addEventListener("click", () => {
