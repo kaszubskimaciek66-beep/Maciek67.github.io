@@ -1,114 +1,49 @@
-// 1. Pobieramy dane z pamięci (LocalStorage) - to dane wysłane z index.js
-const name = localStorage.getItem('name');
-const surname = localStorage.getItem('surname');
-const photo = localStorage.getItem('image');
-const pesel = localStorage.getItem('pesel');
-
-// 2. Czekamy na załadowanie strony i wstawiamy dane do HTML
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Skrypt id.js wczytany poprawnie z folderu assets!");
+    console.log("Skrypt id.js wczytany poprawnie!");
 
-    // Wstawiamy Imię i Nazwisko
-    if (name && surname) {
-        const nameDisplay = document.querySelector(".name_text"); 
-        if (nameDisplay) {
-            nameDisplay.innerHTML = name + " " + surname;
-        }
-    }
+    // 1. OBSŁUGA PRZYCISKU LOGOWANIA (Najważniejsza)
+    // Szukamy wszystkich możliwych klas, których mogłeś użyć
+    const loginBtn = document.querySelector(".error_button") || 
+                     document.querySelector(".login") || 
+                     document.querySelector(".error_button.retry");
 
-    // Wstawiamy zdjęcie
-    if (photo) {
-        const userPhoto = document.querySelector(".user_photo"); 
-        if (userPhoto) {
-            userPhoto.src = photo;
-        }
-    }
-
-    // Wstawiamy PESEL
-    if (pesel) {
-        const peselDisplay = document.querySelector(".pesel_number");
-        if (peselDisplay) {
-            peselDisplay.innerHTML = pesel;
-        }
-    }
-
-    // Powitanie zależne od godziny
-    let welcome = "Dzień dobry!";
-    const date = new Date();
-    if (date.getHours() >= 18) {
-        welcome = "Dobry wieczór!";
-    }
-    const welcomeElement = document.querySelector(".welcome");
-    if (welcomeElement) {
-        welcomeElement.innerHTML = welcome;
-    }
-
-    // OBSŁUGA LOGOWANIA - Sprawdzamy obie możliwe klasy
-    const loginButton = document.querySelector(".error_button") || document.querySelector(".login");
-    
-    if (loginButton) {
-        loginButton.style.cursor = "pointer"; // Dodajemy łapkę, żeby było wiadomo, że klika
-        loginButton.addEventListener("click", () => {
-            console.log("Przycisk kliknięty! Przenoszę do home.html...");
+    if (loginBtn) {
+        console.log("Znaleziono przycisk logowania. Dodaję obsługę kliknięcia.");
+        loginBtn.addEventListener("click", (e) => {
+            e.preventDefault(); // Zapobiega przeładowaniu strony
+            console.log("Przycisk kliknięty! Przekierowuję...");
             window.location.href = "home.html";
         });
     } else {
-        // Jeśli to zobaczysz w konsoli (F12), to znaczy, że w id.html przycisk ma jeszcze inną nazwę
-        console.error("BŁĄD: Nie znaleziono przycisku do logowania (.error_button lub .login)");
+        console.error("Błąd: Nie znaleziono przycisku logowania w HTML.");
+    }
+
+    // 2. BEZPIECZNE ŁADOWANIE DANYCH (Jeśli czegoś braknie, reszta działa)
+    try {
+        const name = localStorage.getItem('name');
+        const surname = localStorage.getItem('surname');
+        const photo = localStorage.getItem('image');
+
+        if (name && surname) {
+            const display = document.querySelector(".name_text");
+            if (display) display.innerHTML = name + " " + surname;
+        }
+        
+        if (photo) {
+            const img = document.querySelector(".user_photo");
+            if (img) img.src = photo;
+        }
+    } catch (err) {
+        console.warn("Problem z ładowaniem danych z pamięci:", err);
+    }
+
+    // 3. BEZPIECZNA OBSŁUGA OKA (Jeśli eye.png brakuje, nie wywali błędu)
+    const eye = document.querySelector(".eye");
+    const input = document.querySelector(".password_input");
+    if (eye && input) {
+        eye.addEventListener("click", () => {
+            eye.classList.toggle("eye_close");
+            input.type = input.type === "password" ? "text" : "password";
+        });
     }
 });
-
-// 3. Logika pola hasła (kropki i "oko")
-var input = document.querySelector(".password_input");
-var dot = "•";
-var original = "";
-var eye = document.querySelector(".eye");
-
-if (input) {
-    input.addEventListener("keypress", (event) => {
-        if (event.key === "Enter") {
-            document.activeElement.blur();
-        }
-    });
-
-    input.addEventListener("input", () => {
-        var value = input.value.toString();
-        var char = value.substring(value.length - 1);
-        if (value.length < original.length) {
-            original = original.substring(0, original.length - 1);
-        } else {
-            original = original + char;
-        }
-
-        if (eye && !eye.classList.contains("eye_close")) {
-            var dots = "";
-            for (var i = 0; i < value.length - 1; i++) {
-                dots = dots + dot;
-            }
-            input.value = dots + char;
-            
-            setTimeout(() => {
-                let currentVal = input.value;
-                if (currentVal.length != 0) {
-                    input.value = currentVal.substring(0, currentVal.length - 1) + dot;
-                }
-            }, 3000);
-        }
-    });
-}
-
-if (eye && input) {
-    eye.addEventListener("click", () => {
-        if (eye.classList.contains("eye_close")) {
-            eye.classList.remove("eye_close");
-            var dots = "";
-            for (var i = 0; i < input.value.length; i++) {
-                dots = dots + dot;
-            }
-            input.value = dots;
-        } else {
-            eye.classList.add("eye_close");
-            input.value = original;
-        }
-    });
-}
