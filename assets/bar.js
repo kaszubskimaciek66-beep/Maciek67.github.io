@@ -20,11 +20,11 @@ function sendTo(page) {
     // Mapujemy nazwy z HTML na Twoje pliki .html
     const pages = {
         'home': 'home.html',
-        'documents': 'id.html', // W mObywatelu dokumenty to często główny ID
+        'documents': 'documents.html', // W mObywatelu dokumenty to często główny ID
         'services': 'services.html',
         'qr': 'qr.html',
         'more': 'more.html',
-        'card': 'id.html' // Kliknięcie w mDowód przenosi do id.html
+        'card': 'card.html' // Kliknięcie w mDowód przenosi do id.html
     };
 
     const target = pages[page];
