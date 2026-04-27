@@ -1,90 +1,110 @@
-// Konfiguracja czasu i daty
 const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
 const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-var date = new Date();
 
-// Funkcja pomocnicza do HTML
-function htmlEncode(s) {
-    return s ? s.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : "";
+// Funkcja pomocnicza do losowania liter i cyfr (inne niż ABC)
+function generateDocumentNumber() {
+    let series = "";
+    const chars = "DEFGHIJKLMNOPQRSTUWXYZ"; // Pula liter bez A, B, C
+    for (let i = 0; i < 3; i++) {
+        series += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const numbers = Math.floor(100000 + Math.random() * 900000).toString().substring(0, 6);
+    return series + " " + numbers;
 }
 
-// 1. ŁADOWANIE DANYCH Z LOCALSTORAGE
-function loadDataFromStorage() {
-    // Pobieramy dane zapisane w index.js
-    const name = localStorage.getItem('name') || "JAN";
-    const surname = localStorage.getItem('surname') || "KOWALSKI";
-    const pesel = localStorage.getItem('pesel') || "00000000000";
-    const photo = localStorage.getItem('image');
-    const day = localStorage.getItem('day') || "01";
-    const month = localStorage.getItem('month') || "01";
-    const year = localStorage.getItem('year') || "1990";
-    const sex = localStorage.getItem('sex') || "m";
-
-    // Wstawianie do HTML (używając Twoich ID z card.html)
-    document.getElementById("name").innerHTML = htmlEncode(name.toUpperCase());
-    document.getElementById("surname").innerHTML = htmlEncode(surname.toUpperCase());
-    document.getElementById("pesel").innerHTML = htmlEncode(pesel);
-    document.getElementById("birthday").innerHTML = `${day}.${month}.${year}`;
-    document.getElementById("nationality").innerHTML = "POLSKIE";
-    
-    // Płeć
-    document.getElementById("sex").innerHTML = (sex === "m") ? "Mężczyzna" : "Kobieta";
-
-    // Zdjęcie profilowe
-    if (photo) {
-        document.querySelector(".id_own_image").style.backgroundImage = `url(${photo})`;
-    }
-
-    // Generowanie numeru dowodu (jeśli nie ma w pamięci)
-    let seriesAndNumber = localStorage.getItem("seriesAndNumber");
-    if (!seriesAndNumber) {
-        seriesAndNumber = "ABC " + Math.floor(10000 + Math.random() * 90000);
-        localStorage.setItem("seriesAndNumber", seriesAndNumber);
-    }
-    document.getElementById("seriesAndNumber").innerHTML = seriesAndNumber;
-
-    // Przykładowe daty wydania i ważności
-    document.getElementById("expiryDate").innerHTML = `24.12.2034`;
-    document.getElementById("givenDate").innerHTML = `24.12.2024`;
-}
-
-// 2. OBSŁUGA ZEGARA
 function setClock() {
-    date = new Date();
-    const timeElement = document.getElementById("time");
-    if (timeElement) {
-        timeElement.innerHTML = "Czas: " + date.toLocaleTimeString("pl-PL", optionsTime) + " " + date.toLocaleDateString("pl-PL", options);
+    const now = new Date();
+    const timeEl = document.getElementById("time");
+    if (timeEl) {
+        timeEl.innerHTML = "Czas: " + now.toLocaleTimeString("pl-PL", optionsTime) + " " + now.toLocaleDateString("pl-PL", options);
     }
     setTimeout(setClock, 1000);
 }
 
-// 3. ROZWIJANIE DODATKOWYCH DANYCH
-var unfold = document.querySelector(".info_holder");
-if (unfold) {
-    unfold.addEventListener("click", () => {
-        unfold.classList.toggle("unfolded");
-    });
+function loadCardData() {
+    // 1. Pobieranie danych podstawowych
+    const data = {
+        name: localStorage.getItem('name') || "JAN",
+        surname: localStorage.getItem('surname') || "KOWALSKI",
+        pesel: localStorage.getItem('pesel') || "00000000000",
+        image: localStorage.getItem('image'),
+        day: localStorage.getItem('day') || "01",
+        month: localStorage.getItem('month') || "01",
+        year: localStorage.getItem('year') || "1995",
+        sex: localStorage.getItem('sex') || "m",
+        // Dodatkowe dane z index.html
+        familyName: localStorage.getItem('familyName') || "---",
+        fathersFamilyName: localStorage.getItem('fathersFamilyName') || "---",
+        mothersFamilyName: localStorage.getItem('mothersFamilyName') || "---",
+        birthPlace: localStorage.getItem('birthPlace') || "WARSZAWA",
+        countryOfBirth: localStorage.getItem('countryOfBirth') || "POLSKA",
+        adress1: localStorage.getItem('adress1') || "",
+        adress2: localStorage.getItem('adress2') || "",
+        city: localStorage.getItem('city') || ""
+    };
+
+    // 2. Wstrzykiwanie danych do HTML
+    document.getElementById("name").innerHTML = data.name.toUpperCase();
+    document.getElementById("surname").innerHTML = data.surname.toUpperCase();
+    document.getElementById("pesel").innerHTML = data.pesel;
+    document.getElementById("nationality").innerHTML = "POLSKIE";
+    document.getElementById("birthday").innerHTML = `${data.day}.${data.month}.${data.year}`;
+    
+    // Imiona rodziców (zgodnie z prośbą)
+    document.getElementById("fathersName").innerHTML = "ŁUKASZ";
+    document.getElementById("mothersName").innerHTML = "MAŁGORZATA";
+
+    // Dane rodowe i miejsce urodzenia (Zdjęcie 3)
+    document.getElementById("familyName").innerHTML = data.familyName.toUpperCase();
+    document.getElementById("sex").innerHTML = (data.sex === "m") ? "Mężczyzna" : "Kobieta";
+    document.getElementById("fathersFamilyName").innerHTML = data.fathersFamilyName.toUpperCase();
+    document.getElementById("mothersFamilyName").innerHTML = data.mothersFamilyName.toUpperCase();
+    document.getElementById("birthPlace").innerHTML = data.birthPlace.toUpperCase();
+    document.getElementById("countryOfBirth").innerHTML = data.countryOfBirth.toUpperCase();
+    document.getElementById("adress").innerHTML = `ul. ${data.adress1}<br>${data.adress2} ${data.city}`.toUpperCase();
+
+    // 3. Zdjęcie
+    if (data.image) {
+        document.querySelector(".id_own_image").style.backgroundImage = `url(${data.image})`;
+    }
+
+    // 4. Losowanie Serii i Numeru (jeśli nie ma w pamięci)
+    if (!localStorage.getItem("seriesAndNumber")) {
+        localStorage.setItem("seriesAndNumber", generateDocumentNumber());
+    }
+    document.getElementById("seriesAndNumber").innerHTML = localStorage.getItem("seriesAndNumber");
+
+    // 5. Daty ważności
+    document.getElementById("givenDate").innerHTML = `24.12.2024`;
+    document.getElementById("expiryDate").innerHTML = `24.12.2034`;
+    
+    // 6. Data zameldowania (losowa raz na zawsze)
+    if (!localStorage.getItem("homeDate")) {
+        localStorage.setItem("homeDate", "12.05.2018");
+    }
+    document.querySelector(".home_date").innerHTML = localStorage.getItem("homeDate");
 }
 
-// 4. AKTUALIZACJA DATY "Ostatnia aktualizacja"
-var updateText = document.querySelector(".bottom_update_value");
-if (updateText) {
-    if (!localStorage.getItem("update")) localStorage.setItem("update", "24.12.2024");
-    updateText.innerHTML = localStorage.getItem("update");
-}
-
-var updateBtn = document.querySelector(".update");
-if (updateBtn) {
-    updateBtn.addEventListener("click", () => {
-        var newDate = new Date().toLocaleDateString("pl-PL", options);
-        localStorage.setItem("update", newDate);
-        if (updateText) updateText.innerHTML = newDate;
-        window.scrollTo(0, 0);
-    });
-}
-
-// INICJALIZACJA
 document.addEventListener("DOMContentLoaded", () => {
-    loadDataFromStorage();
+    loadCardData();
     setClock();
+
+    // Rozwijanie "Twoje dodatkowe dane"
+    const unfold = document.querySelector(".info_holder");
+    if (unfold) {
+        unfold.addEventListener('click', () => {
+            unfold.classList.toggle("unfolded");
+        });
+    }
+
+    // Aktualizacja
+    const updateBtn = document.querySelector(".update");
+    if (updateBtn) {
+        updateBtn.addEventListener('click', () => {
+            const newDate = new Date().toLocaleDateString("pl-PL", options);
+            localStorage.setItem("update", newDate);
+            document.querySelector(".bottom_update_value").innerHTML = newDate;
+            window.scrollTo(0, 0);
+        });
+    }
 });
