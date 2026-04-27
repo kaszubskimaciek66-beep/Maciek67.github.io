@@ -19,12 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
 function sendTo(page) {
     // Mapujemy nazwy z HTML na Twoje pliki .html
     const pages = {
-        'home': 'home.html',
-        'documents': 'documents.html', // W mObywatelu dokumenty to często główny ID
+       'home': 'home.html',
+        'documents': 'documents.html', 
         'services': 'services.html',
         'qr': 'qr.html',
         'more': 'more.html',
-        'card': 'card.html' // Kliknięcie w mDowód przenosi do id.html
+        'card': 'card.html',
+        'pesel': 'pesel.html',
+        'scan': 'scan.html',        // Dodane
+        'document': 'document.html', // Dodane (dane dowodu)
+        'shortcuts': 'shortcuts.html' // Dodane
     };
 
     const target = pages[page];
