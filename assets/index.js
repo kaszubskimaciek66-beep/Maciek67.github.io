@@ -41,32 +41,48 @@ upload.addEventListener("click", () => {
 });
 
 imageInput.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
   upload.classList.remove("upload_loaded");
   upload.classList.add("upload_loading");
-
   upload.removeAttribute("selected");
 
-  var file = imageInput.files[0];
   var data = new FormData();
   data.append("image", file);
 
-  fetch("	https://api.imgur.com/3/image", {
+  fetch("https://api.imgur.com/3/image", {
     method: "POST",
     headers: {
-      Authorization: "Client-ID e4d98a899c8c946",
+      Authorization: "Client-ID e4d98a899c8c946", // Upewnij się, że ten ID jest poprawny
     },
     body: data,
   })
-    .then((result) => result.json())
+    .then((result) => {
+      if (!result.ok) throw new Error("Błąd przesyłania");
+      return result.json();
+    })
     .then((response) => {
-      var url = response.data.link;
-      upload.classList.remove("error_shown");
-      upload.setAttribute("selected", url);
-      upload.classList.add("upload_loaded");
+      if (response.success) {
+        var url = response.data.link;
+        upload.classList.remove("error_shown");
+        upload.setAttribute("selected", url);
+        upload.classList.add("upload_loaded");
+        upload.querySelector(".upload_uploaded").src = url;
+      } else {
+        alert("Imgur odrzucił zdjęcie: " + response.data.error);
+      }
+    })
+    .catch((error) => {
+      console.error("Błąd:", error);
+      alert("Wystąpił błąd podczas wysyłania zdjęcia.");
+    })
+    .finally(() => {
+      // To wykona się zawsze, niezależnie od sukcesu czy błędu
       upload.classList.remove("upload_loading");
-      upload.querySelector(".upload_uploaded").src = url;
     });
 });
+
 
 document.querySelector(".go").addEventListener("click", () => {
   var empty = [];
