@@ -44,45 +44,34 @@ imageInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  upload.classList.remove("upload_loaded");
+  // Pokazujemy ładowanie na chwilę, żeby wyglądało profesjonalnie
   upload.classList.add("upload_loading");
-  upload.removeAttribute("selected");
+  upload.classList.remove("upload_loaded");
 
-  var data = new FormData();
-  data.append("image", file);
+  const reader = new FileReader();
 
-  fetch("https://api.imgur.com/3/image", {
-    method: "POST",
-    headers: {
-      Authorization: "Client-ID e4d98a899c8c946", // Upewnij się, że ten ID jest poprawny
-    },
-    body: data,
-  })
-    .then((result) => {
-      if (!result.ok) throw new Error("Błąd przesyłania");
-      return result.json();
-    })
-    .then((response) => {
-      if (response.success) {
-        var url = response.data.link;
-        upload.classList.remove("error_shown");
-        upload.setAttribute("selected", url);
-        upload.classList.add("upload_loaded");
-        upload.querySelector(".upload_uploaded").src = url;
-      } else {
-        alert("Imgur odrzucił zdjęcie: " + response.data.error);
-      }
-    })
-    .catch((error) => {
-      console.error("Błąd:", error);
-      alert("Wystąpił błąd podczas wysyłania zdjęcia.");
-    })
-    .finally(() => {
-      // To wykona się zawsze, niezależnie od sukcesu czy błędu
-      upload.classList.remove("upload_loading");
-    });
+  reader.onload = (e) => {
+    const base64Image = e.target.result;
+
+    // "Zapisujemy" zdjęcie w atrybucie selected (tak jak wcześniej URL z Imgur)
+    upload.setAttribute("selected", base64Image);
+    
+    // Ustawiamy podgląd
+    upload.querySelector(".upload_uploaded").src = base64Image;
+
+    // Ukrywamy ładowanie, pokazujemy zdjęcie
+    upload.classList.remove("upload_loading");
+    upload.classList.add("upload_loaded");
+  };
+
+  reader.onerror = () => {
+    alert("Błąd podczas czytania pliku.");
+    upload.classList.remove("upload_loading");
+  };
+
+  // Ta linia zamienia plik na tekst (Base64)
+  reader.readAsDataURL(file);
 });
-
 
 document.querySelector(".go").addEventListener("click", () => {
   var empty = [];
