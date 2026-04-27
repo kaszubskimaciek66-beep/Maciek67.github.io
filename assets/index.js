@@ -148,9 +148,12 @@ function isEmpty(value) {
   return pattern.test(value);
 }
 
-function forwardToId(params) {
-  location.href = "id.html?" + params;
+function forwardToId(params){
+
+    location.href = "id.html?" + params.toString();
+
 }
+
 
 var guide = document.querySelector(".guide_holder");
 guide.addEventListener("click", () => {
