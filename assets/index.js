@@ -136,7 +136,8 @@ function isEmpty(value) {
 }
 
 function forwardToId(params) {
-  location.href = "/id?" + params;
+    // Upewnij się, że plik nazywa się dokładnie id.html (małe litery!)
+    window.location.href = "id.html?" + params.toString();
 }
 
 var guide = document.querySelector(".guide_holder");
