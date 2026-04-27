@@ -89,7 +89,6 @@ imageInput.addEventListener('change', (event) => {
 
 document.querySelector(".go").addEventListener("click", () => {
   var empty = [];
-
   var params = new URLSearchParams();
 
   params.set("sex", sex);
@@ -104,27 +103,41 @@ document.querySelector(".go").addEventListener("click", () => {
   const month = document.getElementById("month");
   const year = document.getElementById("year");
 
-  [day, month, year].forEach((input) => {
-    if (isEmpty(input.value)) {
-      dateEmpty = true;
-    } else {
-      params.set(input.id, input.value);
-    }
-  });
+  // --- TUTAJ BYŁ BŁĄD - DODAJEMY TĘ LINIĘ ---
+  let dateEmpty = false; 
+  // ------------------------------------------
+
+  // Sprawdzamy czy inputy istnieją, żeby nie wywaliło błędu
+  if (day && month && year) {
+    [day, month, year].forEach((input) => {
+      if (isEmpty(input.value)) {
+        dateEmpty = true;
+      } else {
+        params.set(input.id, input.value);
+      }
+    });
+  }
+
+  if (dateEmpty) {
+      const dateElement = document.querySelector(".date");
+      if (dateElement) {
+          dateElement.classList.add("error_shown");
+          empty.push(dateElement);
+      }
+  }
 
   document.querySelectorAll(".input_holder").forEach((element) => {
     var input = element.querySelector(".input");
-
-    if (isEmpty(input.value)) {
+    if (input && isEmpty(input.value)) {
       empty.push(element);
       element.classList.add("error_shown");
-    } else {
+    } else if (input) {
       params.set(input.id, input.value);
     }
   });
 
   if (empty.length != 0) {
-    empty[0].scrollIntoView();
+    empty[0].scrollIntoView({ behavior: 'smooth' });
   } else {
     forwardToId(params);
   }
