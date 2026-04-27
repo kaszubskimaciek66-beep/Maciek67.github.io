@@ -43,13 +43,18 @@ document.addEventListener("DOMContentLoaded", () => {
         welcomeElement.innerHTML = welcome;
     }
 
-    // OBSŁUGA LOGOWANIA (Przycisk .error_button z Twojego qr.css)
-    const loginButton = document.querySelector(".error_button");
+    // OBSŁUGA LOGOWANIA - Sprawdzamy obie możliwe klasy
+    const loginButton = document.querySelector(".error_button") || document.querySelector(".login");
+    
     if (loginButton) {
+        loginButton.style.cursor = "pointer"; // Dodajemy łapkę, żeby było wiadomo, że klika
         loginButton.addEventListener("click", () => {
             console.log("Przycisk kliknięty! Przenoszę do home.html...");
             window.location.href = "home.html";
         });
+    } else {
+        // Jeśli to zobaczysz w konsoli (F12), to znaczy, że w id.html przycisk ma jeszcze inną nazwę
+        console.error("BŁĄD: Nie znaleziono przycisku do logowania (.error_button lub .login)");
     }
 });
 
